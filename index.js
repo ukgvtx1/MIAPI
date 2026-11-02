@@ -3,8 +3,6 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const sequelize = require('./config/db');
-const autenticar = require('./middleware/authMiddleware');
-
 require('dotenv').config();
 
 const app = express();
@@ -29,55 +27,16 @@ app.use(express.json());
 
 // --- RUTAS DE AUTENTICACIÓN Y CRUD ---
 app.use('/api/auth', require('./routes/auth'));
+app.use('/categorias', require('./routes/categorias'));
+app.use('/proveedores', require('./routes/proveedores'));
+app.use('/productos', require('./routes/productos'));
+app.use('/movimientos', require('./routes/movimientos'));
+app.use('/usuarios', require('./routes/usuarios'));
+app.use('/dashboard', require('./routes/dashboard'));
 
 // --- RUTAS BÁSICAS DE PRUEBA ---
 app.get('/', (req, res) => {
     res.send('¡API Backend funcionando exitosamente!');
-});
-
-// --- RUTAS CRUD PARA PRODUCTOS ---
-// 1. POST: Crear un nuevo producto
-app.post('/productos', async (req, res) => {
-    try {
-        const nuevoProducto = await Producto.create(req.body);
-        res.status(201).json(nuevoProducto);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// 2. GET: Obtener todos los productos
-app.get('/productos', autenticar(['Administrador', 'Almacenero']), async (req, res) => {
-    try {
-        const productos = await Producto.findAll();
-        res.json(productos);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// 3. PUT: Actualizar un producto existente
-app.put('/productos/:id', autenticar(['Administrador', 'Almacenero']), async (req, res) => {
-    try {
-        await Producto.update(req.body, {
-            where: { id: req.params.id }
-        });
-        res.json({ message: 'Producto actualizado' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// 4. DELETE: Eliminar un producto
-app.delete('/productos/:id', autenticar(['Administrador', 'Almacenero']), async (req, res) => {
-    try {
-        await Producto.destroy({
-            where: { id: req.params.id }
-        });
-        res.json({ message: 'Producto eliminado' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
 });
 
 // --- SINCRONIZACIÓN Y ARRANQUE ---
